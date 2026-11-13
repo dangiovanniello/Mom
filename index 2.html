@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>With You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout idea: white page, church-window arches in sky and rose, ruled editorial lists instead of card grids. Single light theme by choice. */
+  color-scheme:light;
+  --paper:#ffffff;
+  --sky:#e8f2fb;
+  --sky-deep:#bdd9f1;
+  --blue:#2c5f93;
+  --blue-dark:#1f4873;
+  --rose:#fce8ef;
+  --rose-deep:#f3bfd0;
+  --berry:#a3345b;
+  --ink:#1b2a41;
+  --muted:#55647a;
+  --line:#d8e2ee;
+  --ok:#1f6b4f; --warn:#8a5a00; --alert:#a02b2b;
+  --display:"Newsreader","Iowan Old Style",Georgia,serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --wrap:1120px;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%}
+a{color:var(--blue);text-underline-offset:3px}
+a:hover{color:var(--blue-dark)}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.12;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(2.3rem,5.4vw,4.1rem)}
+h2{font-size:clamp(1.7rem,3.2vw,2.5rem)}
+h3{font-size:1.35rem;line-height:1.25}
+h1 em,h2 em{font-style:italic;color:var(--berry)}
+p{margin:0}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 20px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.stack-lg{display:flex;flex-direction:column;gap:28px}
+.prose{max-width:65ch}
+.lede{font-size:1.2rem;color:var(--muted);max-width:56ch}
+.eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+.muted{color:var(--muted)}
+.small{font-size:.9rem}
+:focus-visible{outline:3px solid var(--berry);outline-offset:3px;border-radius:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* prototype bar + header */
+.proto{background:var(--ink);color:#fff;font-size:.85rem}
+.proto .wrap{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding-top:8px;padding-bottom:8px}
+.proto label{display:flex;gap:8px;align-items:center;white-space:nowrap}
+.proto select{width:auto;font:inherit;padding:6px 8px;border-radius:6px;border:0;background:#fff;color:var(--ink);min-height:32px}
+header.site{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.site .wrap{display:flex;align-items:center;gap:20px;min-height:68px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-family:var(--display);font-size:1.5rem}
+.brand svg{width:30px;height:36px;flex:none}
+nav.main{display:flex;gap:4px;margin-left:auto;align-items:center;flex-wrap:wrap}
+nav.main a{text-decoration:none;color:var(--ink);font-weight:500;font-size:.97rem;padding:10px 12px;border-radius:8px;position:relative}
+nav.main a:not(.btn)::after{content:"";position:absolute;left:12px;right:12px;bottom:6px;height:2px;background:var(--berry);transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease)}
+nav.main a:not(.btn):hover::after,nav.main a[aria-current="page"]::after{transform:scaleX(1)}
+header.site .menu-btn{display:none;margin-left:auto}
+@media (max-width:940px){
+  header.site .menu-btn{display:inline-flex}
+  nav.main{display:none;position:absolute;left:0;right:0;top:100%;background:#fff;border-bottom:1px solid var(--line);padding:12px 20px 20px;flex-direction:column;align-items:stretch}
+  nav.main.open{display:flex}
+  nav.main a{padding:14px 12px}
+}
+.exit{position:fixed;right:16px;bottom:16px;z-index:40;background:var(--ink);color:#fff;text-decoration:none;font-weight:600;padding:12px 18px;border-radius:999px;box-shadow:0 6px 20px rgba(27,42,65,.25);font-size:.95rem}
+.exit:hover{color:#fff;background:#000}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 22px;border-radius:999px;border:1.5px solid transparent;font:600 1rem var(--body);cursor:pointer;text-decoration:none;transition:transform .2s var(--ease),background .2s,box-shadow .2s,border-color .2s}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue-dark);color:#fff;box-shadow:0 6px 16px rgba(44,95,147,.28)}
+.btn.ghost{background:#fff;color:var(--blue-dark);border-color:var(--sky-deep)}
+.btn.ghost:hover{border-color:var(--blue);background:var(--sky)}
+.btn.pink{background:var(--berry);color:#fff}
+.btn.pink:hover{background:#862949;color:#fff;box-shadow:0 6px 16px rgba(163,52,91,.28)}
+nav.main a.btn.pink{color:#fff;min-height:42px;padding:8px 18px;margin-left:6px}
+.btn.sm{min-height:40px;padding:8px 16px;font-size:.92rem}
+.btn-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.linkbtn{background:none;border:0;padding:0;font:inherit;color:var(--blue);text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:32px}
+
+/* motion */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes grow{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0)}}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+#view.enter{animation:rise .45s var(--ease) both}
+.hero .seq>*{animation:rise .7s var(--ease) both}
+.hero .seq>*:nth-child(2){animation-delay:.08s}.hero .seq>*:nth-child(3){animation-delay:.16s}.hero .seq>*:nth-child(4){animation-delay:.24s}.hero .seq>*:nth-child(5){animation-delay:.32s}
+.arch{animation:grow 1.1s var(--ease) both}
+.arch.a2{animation-delay:.15s}.arch.a3{animation-delay:.3s}
+.fig{animation:rise .9s .7s var(--ease) both}
+.will{opacity:0;transform:translateY(18px)}
+.will.in{opacity:1;transform:none;transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.msg{animation:pop .35s var(--ease) both}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+  .will{opacity:1;transform:none}
+}
+
+/* sections */
+section.band{padding:72px 0}
+section.band.tight{padding:48px 0}
+.sky{background:var(--sky)}
+.rose{background:var(--rose)}
+.hero{padding:56px 0 64px}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+.hero .seq{display:flex;flex-direction:column;gap:22px}
+.hero-art{max-width:420px;justify-self:center;width:100%}
+.assure{display:flex;flex-wrap:wrap;gap:6px 20px;color:var(--muted);font-size:.95rem}
+.assure span::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--rose-deep);margin-right:8px;vertical-align:middle}
+@media (max-width:820px){.hero .wrap{grid-template-columns:1fr}.hero-art{max-width:300px;order:-1}}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+.split.wide-left{grid-template-columns:1.3fr .7fr}
+@media (max-width:820px){.split,.split.wide-left{grid-template-columns:1fr;gap:32px}}
+.needs{list-style:none;margin:0;padding:0;columns:3;column-gap:40px}
+.needs li{break-inside:avoid;border-top:1px solid var(--line)}
+.needs a{display:flex;justify-content:space-between;gap:12px;padding:16px 2px;text-decoration:none;color:var(--ink);font-family:var(--display);font-size:1.3rem;transition:color .2s,padding .3s var(--ease)}
+.needs a span{color:var(--berry);transition:transform .3s var(--ease)}
+.needs a:hover{color:var(--blue);padding-left:8px}.needs a:hover span{transform:translateX(4px)}
+@media (max-width:820px){.needs{columns:1}}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:36px;counter-reset:s;list-style:none;padding:0;margin:0}
+.steps li{counter-increment:s;border-top:2px solid var(--blue);padding-top:16px;display:flex;flex-direction:column;gap:8px}
+.steps li::before{content:counter(s,decimal-leading-zero);font-family:var(--display);font-style:italic;color:var(--berry);font-size:1.3rem}
+@media (max-width:820px){.steps{grid-template-columns:1fr}}
+.statement{font-family:var(--display);font-size:clamp(1.8rem,4vw,3rem);line-height:1.2;max-width:22ch}
+.page-head{padding:56px 0 28px}
+.page-head .wrap{display:flex;flex-direction:column;gap:16px}
+.page-body{padding:16px 0 80px}
+
+/* forms */
+form.f{display:flex;flex-direction:column;gap:20px;max-width:640px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.legend{font-weight:600}
+.hint{font-size:.9rem;color:var(--muted)}
+input[type=text],input[type=email],input[type=tel],input[type=number],input[type=search],select,textarea{font:inherit;color:var(--ink);background:#fff;border:1.5px solid #9fb3c8;border-radius:10px;padding:12px 14px;min-height:48px;width:100%}
+textarea{min-height:120px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:3px solid var(--sky-deep);outline-offset:0}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer;margin:0}
+.chip span{display:inline-flex;align-items:center;min-height:46px;padding:10px 16px;border:1.5px solid var(--sky-deep);border-radius:999px;background:#fff;font-weight:500;transition:background .2s,border-color .2s,color .2s}
+.chip input:checked+span{background:var(--blue);border-color:var(--blue);color:#fff}
+.chip input:focus-visible+span{outline:3px solid var(--berry);outline-offset:3px}
+.chip:hover span{border-color:var(--blue)}
+.check{display:flex;gap:12px;align-items:flex-start}
+.check input{width:22px;height:22px;margin-top:3px;flex:none;accent-color:var(--blue)}
+.progress{display:flex;gap:6px;max-width:640px}
+.progress i{flex:1;height:4px;border-radius:2px;background:var(--line);transition:background .4s}
+.progress i.on{background:var(--berry)}
+.note{border-left:3px solid var(--sky-deep);background:var(--sky);padding:14px 16px;border-radius:0 10px 10px 0;font-size:.95rem}
+.note.pinkn{border-color:var(--rose-deep);background:var(--rose)}
+.note.alertn{border-color:var(--alert);background:#fdf0f0}
+.panel{border:1px solid var(--line);border-radius:14px;padding:24px;background:#fff}
+
+/* tags */
+.tag{display:inline-flex;align-items:center;font-size:.78rem;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:999px;background:var(--sky);color:var(--blue-dark);white-space:nowrap}
+.tag.t-health{background:#e3f3ec;color:#1f6b4f}.tag.t-min{background:var(--rose);color:var(--berry)}
+.tag.t-couns{background:#efe9fa;color:#57408f}.tag.t-pub{background:#eef1f5;color:#3b4a5e}
+.tag.sample{background:#fff4d6;color:var(--warn)}
+.tag.s-ok{background:#e3f3ec;color:var(--ok)}.tag.s-warn{background:#fff4d6;color:var(--warn)}.tag.s-alert{background:#fdeaea;color:var(--alert)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+
+/* directory */
+.filters{display:grid;grid-template-columns:2fr repeat(3,1fr);gap:12px}
+.filters.two{grid-template-columns:repeat(3,1fr);margin-top:12px}
+@media (max-width:820px){.filters,.filters.two{grid-template-columns:1fr 1fr}.filters .field:first-child{grid-column:1/-1}}
+.rlist{list-style:none;padding:0;margin:0}
+.rlist li{border-top:1px solid var(--line);padding:22px 0;display:grid;grid-template-columns:1fr auto;gap:8px 24px;align-items:start}
+.rlist li:last-child{border-bottom:1px solid var(--line)}
+.rlist h3 a{color:var(--ink);text-decoration:none}.rlist h3 a:hover{color:var(--blue);text-decoration:underline}
+.rmeta{font-size:.92rem;color:var(--muted)}
+@media (max-width:600px){.rlist li{grid-template-columns:1fr}}
+dl.facts{display:grid;grid-template-columns:max-content 1fr;gap:10px 24px;margin:0}
+dl.facts dt{font-weight:600;color:var(--muted)}dl.facts dd{margin:0}
+@media (max-width:520px){dl.facts{grid-template-columns:1fr;gap:2px}dl.facts dd{margin-bottom:10px}}
+
+/* thread */
+.thread{display:flex;flex-direction:column;gap:14px;padding:20px;background:var(--sky);border-radius:14px;max-height:460px;overflow-y:auto}
+.msg{max-width:82%;padding:12px 16px;border-radius:16px;background:#fff;border:1px solid var(--line)}
+.msg.me{align-self:flex-end;background:var(--blue);color:#fff;border-color:var(--blue)}
+.msg.auto{align-self:center;max-width:100%;background:transparent;border:1px dashed #9fb3c8;font-size:.9rem;color:var(--muted);text-align:center}
+.msg.internal{background:#fff9e6;border-color:#ecd58f;align-self:stretch;max-width:100%}
+.msg .who{font-size:.78rem;font-weight:700;letter-spacing:.03em;margin-bottom:2px;opacity:.85}
+.composer{display:flex;gap:10px;align-items:flex-end}
+.composer textarea{min-height:52px;height:52px}
+.status-track{display:flex;gap:0;list-style:none;padding:0;margin:0;flex-wrap:wrap}
+.status-track li{flex:1;min-width:120px;padding:10px 0 0;border-top:4px solid var(--line);font-size:.88rem;color:var(--muted);font-weight:600}
+.status-track li.done{border-color:var(--sky-deep);color:var(--ink)}
+.status-track li.now{border-color:var(--berry);color:var(--berry)}
+
+/* team */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.tabs button{font:600 .95rem var(--body);background:none;border:0;border-bottom:3px solid transparent;padding:12px 14px;cursor:pointer;color:var(--muted);min-height:46px}
+.tabs button[aria-selected="true"]{color:var(--blue-dark);border-color:var(--berry)}
+.cols{display:grid;grid-template-columns:320px 1fr;gap:28px;align-items:start}
+@media (max-width:820px){.cols{grid-template-columns:1fr}}
+.qlist{list-style:none;margin:0;padding:0}
+.qlist button{width:100%;text-align:left;background:#fff;border:0;border-top:1px solid var(--line);border-left:3px solid transparent;padding:14px 12px;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:4px;color:var(--ink)}
+.qlist button:hover{background:var(--sky)}
+.qlist button.sel{border-left-color:var(--berry);background:var(--sky)}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.scroll-x{overflow-x:auto}
+
+details.art{border-top:1px solid var(--line);padding:18px 0}
+details.art:last-of-type{border-bottom:1px solid var(--line)}
+details.art summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:8px}
+details.art summary::-webkit-details-marker{display:none}
+details.art summary h3::after{content:" +";color:var(--berry)}
+details.art[open] summary h3::after{content:" –"}
+details.art .body{padding-top:14px;display:flex;flex-direction:column;gap:12px;max-width:65ch}
+.src{font-size:.88rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px}
+
+.amounts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.amounts .chip span{width:100%;justify-content:center;border-radius:12px;font-size:1.1rem;font-family:var(--display)}
+@media (max-width:520px){.amounts{grid-template-columns:repeat(2,1fr)}}
+.modal{position:fixed;inset:0;background:rgba(27,42,65,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal .box{background:#fff;border-radius:16px;max-width:460px;width:100%;padding:28px;display:flex;flex-direction:column;gap:16px;animation:pop .3s var(--ease) both;max-height:90vh;overflow:auto}
+.toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;z-index:60;font-size:.95rem;animation:pop .3s var(--ease) both;max-width:calc(100% - 40px)}
+footer.site{background:var(--ink);color:#d7e0ec;padding:56px 0 96px;font-size:.95rem}
+footer.site a{color:#fff}
+footer.site .grid{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:36px}
+footer.site ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+footer.site h3{font-family:var(--body);font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9fb3c8;margin-bottom:12px}
+@media (max-width:820px){footer.site .grid{grid-template-columns:1fr 1fr}}
+
+/* stat ring */
+.ring-stage{position:relative;height:460px;perspective:1100px;overflow:hidden;border-radius:20px;background:radial-gradient(ellipse at 50% 108%,var(--rose-deep) 0,transparent 55%),radial-gradient(ellipse at 50% -8%,var(--sky-deep) 0,transparent 55%),var(--sky);touch-action:pan-y;user-select:none;cursor:grab;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%)}
+.ring-stage.drag{cursor:grabbing}
+.ring{position:absolute;left:50%;top:50%;width:260px;height:330px;margin:-165px 0 0 -130px;transform-style:preserve-3d;transition:transform 1.5s cubic-bezier(.17,.9,.22,1)}
+.ring-stage.drag .ring{transition:none}
+.scard{position:absolute;inset:0;border-radius:16px;padding:20px;display:flex;flex-direction:column;justify-content:space-between;backface-visibility:hidden;border:1px solid rgba(255,255,255,.9);box-shadow:0 18px 40px rgba(44,95,147,.18);color:var(--ink);overflow:hidden}
+.scard.c0{background:radial-gradient(at 15% 10%,#fff 0,transparent 55%),radial-gradient(at 90% 35%,#bdd9f1 0,transparent 60%),radial-gradient(at 35% 95%,#fce8ef 0,transparent 60%),#e8f2fb}
+.scard.c1{background:radial-gradient(at 85% 10%,#fff 0,transparent 55%),radial-gradient(at 10% 40%,#f3bfd0 0,transparent 60%),radial-gradient(at 70% 95%,#e8f2fb 0,transparent 60%),#fce8ef}
+.scard.c2{background:radial-gradient(at 50% 0,#fff 0,transparent 50%),radial-gradient(at 0 80%,#bdd9f1 0,transparent 60%),radial-gradient(at 100% 70%,#f3bfd0 0,transparent 55%),#f4f8fd}
+.scard.c3{background:radial-gradient(at 10% 90%,#fff 0,transparent 50%),radial-gradient(at 90% 85%,#bdd9f1 0,transparent 60%),radial-gradient(at 60% 5%,#f3bfd0 0,transparent 60%),#fdf1f5}
+.scard .st{font-size:.92rem;font-weight:500;line-height:1.3}
+.scard .sf{font-size:.8rem;color:var(--muted)}
+.scard .num{font-weight:300;font-size:5.4rem;line-height:1;letter-spacing:-.04em;background:linear-gradient(90deg,var(--blue),var(--berry));-webkit-background-clip:text;background-clip:text;color:transparent;display:flex;align-items:flex-start;gap:6px;font-variant-numeric:tabular-nums}
+.scard .num.long{font-size:3.3rem}
+.scard .num sup{font-size:1.3rem;letter-spacing:0;margin-top:8px;color:var(--berry);-webkit-text-fill-color:var(--berry)}
+.sd{height:22px;margin-top:14px;position:relative}
+.sd.bar::before{content:"";position:absolute;left:0;right:0;top:10px;height:2px;background:rgba(44,95,147,.25)}
+.sd.bar::after{content:"";position:absolute;left:0;top:10px;height:2px;width:var(--p);background:var(--blue)}
+.sd.bar i{position:absolute;top:4px;left:var(--p);width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#fff;border:2px solid var(--berry);box-shadow:0 0 10px rgba(163,52,91,.4)}
+.sd.dots{display:flex;gap:7px;align-items:center}
+.sd.dots i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--blue)}
+.sd.dots i.on{background:var(--blue)}
+.sd.ticks{display:flex;gap:3px;align-items:center}
+.sd.ticks i{width:2px;background:rgba(44,95,147,.45);border-radius:1px}
+.ring-ctl{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:16px}
+.ring-ctl button{min-width:46px}
+.srcs{font-size:.88rem;color:var(--muted);display:flex;flex-direction:column;gap:8px;padding-left:18px;margin:0}
+@media (prefers-reduced-motion:reduce){.ring{transition:none}}
+</style>
+</head>
+<body>
+<div class="proto"><div class="wrap">
+  <span><strong>Prototype.</strong> Sample data only. Nothing you enter is sent or saved.</span>
+  <label for="role">View as
+    <select id="role">
+      <option value="visitor">Visitor (signed out)</option>
+      <option value="applicant">Mother (demo sign-in)</option>
+      <option value="volunteer">Volunteer: Anne</option>
+      <option value="coordinator">Case coordinator: Thomas</option>
+      <option value="admin">Administrator: Ruth</option>
+    </select>
+  </label>
+</div></div>
+<header class="site"><div class="wrap">
+  <a class="brand" href="#home" aria-label="Home"><svg viewBox="0 0 30 36" aria-hidden="true"><path d="M3 35V15a12 12 0 0 1 24 0v20z" fill="#e8f2fb" stroke="#2c5f93" stroke-width="1.6"/><path d="M15 12v16M10 18h10" stroke="#a3345b" stroke-width="2" stroke-linecap="round"/></svg><span data-brand></span></a>
+  <button class="btn ghost sm menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Menu</button>
+  <nav class="main" id="nav" aria-label="Main">
+    <a href="#find-support">Find support</a>
+    <a href="#directory">Directory</a>
+    <a href="#talk">Talk to a person</a>
+    <a href="#learn">Learn</a>
+    <a href="#mission">Our mission</a>
+    <span id="acctLink"></span>
+    <a class="btn pink" href="#donate">Help a mother</a>
+  </nav>
+</div></header>
+<main id="view" tabindex="-1"></main>
+<footer class="site"><div class="wrap"><div class="grid">
+  <div class="stack"><div class="brand" style="color:#fff"><span data-brand></span></div>
+    <p>A Catholic initiative supporting pregnant and parenting mothers. Help never depends on faith or religious participation.</p>
+    <p class="small">Messaging is not an emergency service. If you are in danger, call 911.</p></div>
+  <div><h3>Get help</h3><ul><li><a href="#find-support">Find support</a></li><li><a href="#directory">Resource directory</a></li><li><a href="#assistance">Request assistance</a></li><li><a href="#talk">Talk to a person</a></li><li><a href="#my-requests">My requests</a></li></ul></div>
+  <div><h3>Give help</h3><ul><li><a href="#donate">Donate</a></li><li><a href="#volunteer">Volunteer and partner</a></li><li><a href="#team">Team sign-in</a></li></ul></div>
+  <div><h3>About</h3><ul><li><a href="#mission">Our Catholic mission</a></li><li><a href="#learn">Learn</a></li><li><a href="#privacy">Privacy</a></li><li><a href="#terms">Terms</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#contact">Contact</a></li><li><a href="#launch-notes">Prototype notes</a></li></ul></div>
+</div></div></footer>
+<a class="exit" id="exit" href="https://www.weather.gov/" rel="noreferrer" title="Leaves this site. Does not erase your browsing history.">Quick exit</a>
+<div id="overlay"></div>
+<div aria-live="polite" id="live"></div>
+
+<script>
+/* ---------- Brand: change here ---------- */
+const BRAND={name:"With You"};
+document.querySelectorAll("[data-brand]").forEach(e=>e.textContent=BRAND.name);
+
+/* ---------- Data ---------- */
+const CATS=[["housing","Rent and housing"],["food","Food and groceries"],["health","Prenatal and postpartum healthcare"],["baby","Diapers, clothing, and baby supplies"],["transport","Transportation"],["childcare","Childcare"],["work","Employment and education"],["emotional","Emotional support and companionship"],["benefits","Help applying for public benefits"]];
+const CAT=Object.fromEntries(CATS);
+const TYPES={health:["Healthcare provider","t-health"],material:["Material aid","t-mat"],ministry:["Religious ministry","t-min"],counsel:["Counseling service","t-couns"],program:["Public program","t-pub"]};
+const STATES="AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY".split(" ");
+const NV="Not yet verified";
+const RES=[
+ {id:"wic",name:"WIC (Special Supplemental Nutrition Program for Women, Infants, and Children)",type:"program",cats:["food","health"],state:"US",area:"Nationwide, through state and local agencies",cost:"Free",mode:"In person",elig:"Set by the program. Check the official site.",hours:NV,phone:NV,site:"https://www.fns.usda.gov/wic",verified:null,svc:"Federal nutrition program for pregnant and postpartum women, infants, and young children."},
+ {id:"snap",name:"SNAP (Supplemental Nutrition Assistance Program)",type:"program",cats:["food","benefits"],state:"US",area:"Nationwide, through state agencies",cost:"Free",mode:"Both",elig:"Set by the program. Check the official site.",hours:NV,phone:NV,site:"https://www.fns.usda.gov/snap",verified:null,svc:"Federal food assistance, applied for through your state."},
+ {id:"medicaid",name:"Medicaid and CHIP",type:"program",cats:["health","benefits"],state:"US",area:"Nationwide, rules vary by state",cost:"Free or low cost",mode:"Both",elig:"Varies by state. Check the official site.",hours:NV,phone:NV,site:"https://www.medicaid.gov",verified:null,svc:"Public health coverage. Many states have specific coverage for pregnancy."},
+ {id:"two11",name:"211",type:"program",cats:["housing","food","transport","childcare","benefits"],state:"US",area:"Most of the United States",cost:"Free",mode:"Remote",elig:"Open to all",hours:NV,phone:"Dial 211",site:"https://www.211.org",verified:null,svc:"Phone and online referral line that connects callers to local services."},
+ {id:"hud",name:"HUD housing assistance and counseling",type:"program",cats:["housing"],state:"US",area:"Nationwide",cost:"Free",mode:"Both",elig:"Varies by program. Check the official site.",hours:NV,phone:NV,site:"https://www.hud.gov",verified:null,svc:"Federal housing programs and a directory of approved housing counselors."},
+ {id:"ccusa",name:"Catholic Charities (local agencies)",type:"ministry",cats:["housing","food","baby","emotional","benefits"],state:"US",area:"Local agencies across the country",cost:"Varies",mode:"In person",elig:"Varies by agency",hours:NV,phone:NV,site:"https://www.catholiccharitiesusa.org",verified:null,svc:"Network of local agencies. Services differ from place to place."},
+ {id:"s-riverside",sample:1,name:"Riverside Women's Clinic",type:"health",cats:["health"],state:"OH",area:"Franklin County, OH",cost:"Sliding scale",mode:"In person",elig:"Open to all",hours:"Mon–Fri 8–5",phone:"(555) 010-0142",site:"",verified:"2026-10-02",svc:"Licensed prenatal and postpartum care."},
+ {id:"s-cradle",sample:1,name:"The Cradle Closet",type:"material",cats:["baby"],state:"OH",area:"Columbus, OH",cost:"Free",mode:"In person",elig:"Parents of children under 3",hours:"Tue, Thu 10–2",phone:"(555) 010-0177",site:"",verified:"2026-09-18",svc:"Diapers, wipes, clothing, and car seats when in stock. No medical services."},
+ {id:"s-stanne",sample:1,name:"St. Anne Parish Mothers' Ministry",type:"ministry",cats:["emotional","baby","transport"],state:"TX",area:"Bexar County, TX",cost:"Free",mode:"In person",elig:"Open to all, any faith or none",hours:"By appointment",phone:"(555) 010-0119",site:"",verified:"2026-08-30",svc:"Volunteer companionship, rides to appointments, meal trains. No medical services."},
+ {id:"s-haven",sample:1,name:"Haven House Maternity Home",type:"material",cats:["housing"],state:"TX",area:"San Antonio, TX",cost:"Free",mode:"In person",elig:"Pregnant women 18+. Space not guaranteed.",hours:"Intake Mon–Fri 9–4",phone:"(555) 010-0163",site:"",verified:"2026-10-11",svc:"Transitional housing during pregnancy and up to six months after birth."},
+ {id:"s-brightpath",sample:1,name:"Bright Path Counseling",type:"counsel",cats:["emotional"],state:"PA",area:"Pennsylvania (telehealth)",cost:"Sliding scale",mode:"Remote",elig:"PA residents",hours:"Mon–Sat, varies",phone:"(555) 010-0151",site:"",verified:"2026-09-05",svc:"Licensed counselors. Perinatal and postpartum support."},
+ {id:"s-pantry",sample:1,name:"Holy Family Food Pantry",type:"ministry",cats:["food"],state:"PA",area:"Allegheny County, PA",cost:"Free",mode:"In person",elig:"Open to all",hours:"Sat 9–12",phone:"(555) 010-0108",site:"",verified:"2026-10-20",svc:"Weekly groceries. No medical services."},
+ {id:"s-steps",sample:1,name:"Next Steps Career Center",type:"material",cats:["work","childcare"],state:"FL",area:"Orange County, FL",cost:"Free",mode:"Both",elig:"Parents seeking work or training",hours:"Mon–Fri 9–5",phone:"(555) 010-0190",site:"",verified:"2026-07-22",svc:"Job search help, GED classes, childcare during sessions."},
+ {id:"s-navig",sample:1,name:"Benefits Navigators of Central Florida",type:"counsel",cats:["benefits"],state:"FL",area:"Central Florida",cost:"Free",mode:"Remote",elig:"Open to all",hours:"Mon–Fri 10–6",phone:"(555) 010-0126",site:"",verified:"2026-10-01",svc:"Help filling out WIC, SNAP, and Medicaid applications. Not legal advice."},
+ {id:"s-midwife",sample:1,name:"Golden Valley Birth Center",type:"health",cats:["health"],state:"CA",area:"Sacramento County, CA",cost:"Accepts Medi-Cal",mode:"In person",elig:"Open to all",hours:"Mon–Fri 8–6",phone:"(555) 010-0134",site:"",verified:"2026-09-27",svc:"Licensed midwifery care, prenatal visits, lactation support."},
+ {id:"s-rides",sample:1,name:"Neighbors Ride Share",type:"material",cats:["transport"],state:"CA",area:"Sacramento, CA",cost:"Free",mode:"In person",elig:"Rides to medical and benefits appointments",hours:"Book 48 hours ahead",phone:"(555) 010-0185",site:"",verified:"2026-08-14",svc:"Volunteer drivers. No medical services."}
+];
+const TEAM={volunteer:{name:"Anne",role:"Volunteer"},coordinator:{name:"Thomas",role:"Case coordinator"},admin:{name:"Ruth",role:"Administrator"}};
+const STATUSES=["Received","Under review","More information needed","Decision available"];
+
+/* ---------- State (memory only) ---------- */
+let S={role:"visitor",
+ intake:{step:1,who:"",state:"",zip:"",needs:[],urgency:""},
+ dir:{q:"",state:"",type:"",cat:"",cost:"",mode:"",elig:""},
+ myConvo:null,myApps:[],
+ convos:[
+  {id:"c-demo1",demo:1,name:"J.",assigned:"volunteer",flags:[],msgs:[{from:"mother",text:"Hi. I'm 14 weeks and I just lost my hours at work. I don't know where to start.",t:"Demo"},{from:"auto",text:"Automated message: we received your note. A volunteer will read it during team hours.",t:"Demo"},{from:"team",by:"volunteer",text:"Hi J., I'm Anne, a volunteer here. I'm glad you wrote. Can I ask what feels most urgent this week?",t:"Demo"}],notes:[{by:"volunteer",text:"Mentioned rent due on the 1st. Suggest assistance application.",t:"Demo"}]},
+  {id:"c-demo2",demo:1,name:"Anonymous",assigned:null,flags:[],msgs:[{from:"mother",text:"Do you only help Catholics?",t:"Demo"},{from:"auto",text:"Automated message: we received your note. A volunteer will read it during team hours.",t:"Demo"}],notes:[]}
+ ],
+ apps:[
+  {id:"WY-1042",demo:1,name:"J. (demo)",state:"OH",needs:["housing","baby"],detail:"One month of rent help and a crib.",status:1,notes:[{by:"coordinator",text:"Called landlord reference. Waiting on callback.",t:"Demo"}],decision:"",consent:false,referrals:[]},
+  {id:"WY-1043",demo:1,name:"R. (demo)",state:"TX",needs:["transport"],detail:"Rides to prenatal visits.",status:0,notes:[],decision:"",consent:true,referrals:[]}
+ ],
+ reports:[],donations:[],audit:[],
+ avail:{volunteer:"Not set",coordinator:"Not set",admin:"Not set"},
+ team:{tab:"convos",convo:null,app:null},
+ lastRoute:""};
+
+/* ---------- Helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const now=()=>new Date().toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+const isTeam=()=>S.role in TEAM;
+const who=()=>isTeam()?TEAM[S.role].name+" ("+TEAM[S.role].role+")":S.role;
+const log=what=>S.audit.unshift({t:now(),who:who(),what});
+function toast(m){$("#live").innerHTML=`<div class="toast">${esc(m)}</div>`;clearTimeout(toast.t);toast.t=setTimeout(()=>$("#live").innerHTML="",3800)}
+const opts=(arr,sel,blank)=>(blank?`<option value="">${blank}</option>`:"")+arr.map(o=>{const[v,l]=Array.isArray(o)?o:[o,o];return`<option value="${esc(v)}"${v===sel?" selected":""}>${esc(l)}</option>`}).join("");
+const typeTag=r=>`<span class="tag ${TYPES[r.type][1]}">${TYPES[r.type][0]}</span>`;
+const head=(eyebrow,h1,lede)=>`<div class="page-head"><div class="wrap"><p class="eyebrow">${eyebrow}</p><h1>${h1}</h1>${lede?`<p class="lede">${lede}</p>`:""}</div></div>`;
+const emergency=`<p class="note alertn"><strong>This is not an emergency service.</strong> If you or your child are in danger, call 911. If you are thinking about harming yourself, call or text 988.</p>`;
+
+/* ---------- Views ---------- */
+const V={};
+const heroArt=`<svg class="hero-art" viewBox="0 0 420 470" role="img" aria-label="Illustration of a mother holding her baby, framed by three arched windows">
+<path class="arch a2" d="M10 460V250a55 55 0 0 1 110 0v210z" fill="#fce8ef"/>
+<path class="arch" d="M135 460V125a80 80 0 0 1 160 0v335z" fill="#e8f2fb"/>
+<path class="arch a3" d="M310 460V290a50 50 0 0 1 100 0v170z" fill="#bdd9f1"/>
+<path d="M215 14v26M205 24h20" stroke="#a3345b" stroke-width="3" stroke-linecap="round" class="fig"/>
+<g class="fig"><circle cx="215" cy="150" r="46" fill="#f3bfd0"/>
+<path d="M165 460C165 345 185 262 214 256c32 6 52 89 52 204z" fill="#2c5f93"/>
+<circle cx="212" cy="226" r="24" fill="#1f4873"/>
+<ellipse cx="232" cy="336" rx="30" ry="19" transform="rotate(-24 232 336)" fill="#fce8ef"/>
+<circle cx="250" cy="314" r="12" fill="#f3bfd0"/>
+<path d="M65 300l5 13 14 1-11 9 4 14-12-8-12 8 4-14-11-9 14-1z" fill="#a3345b" opacity=".75"/>
+<path d="M360 440V340M360 380c-14-4-20-14-20-26M360 360c14-4 20-14 20-26M360 410c-12-3-17-11-17-20" stroke="#2c5f93" stroke-width="3" fill="none" stroke-linecap="round"/></g></svg>`;
+
+V.home=()=>`
+<section class="hero"><div class="wrap">
+  <div class="seq">
+    <p class="eyebrow">Support for pregnant and parenting mothers</p>
+    <h1>You don't have to face pregnancy <em>alone.</em></h1>
+    <p class="lede">Find practical help, financial support, and someone who will listen, during pregnancy and as you raise your child.</p>
+    <div class="btn-row"><a class="btn primary" href="#find-support">Find support</a><a class="btn ghost" href="#talk">Talk to a person</a></div>
+    <p class="assure"><span>No account needed to look</span><span>Any faith or none</span><span>Help continues after birth</span></p>
+  </div>
+  ${heroArt}
+</div></section>
+
+<section class="band tight"><div class="wrap stack-lg reveal">
+  <div class="stack"><p class="eyebrow">What do you need right now?</p><h2>Start with the thing that's keeping you up at night.</h2></div>
+  <ul class="needs">${CATS.map(([k,l])=>`<li><a href="#find-support" data-act="need" data-k="${k}">${l}<span aria-hidden="true">→</span></a></li>`).join("")}</ul>
+</div></section>
+
+<section class="band sky"><div class="wrap split">
+  <div class="stack-lg reveal">
+    <div class="stack"><p class="eyebrow">Talk to a person</p><h2>Real people answer here. Not a chatbot.</h2>
+    <p class="prose">Our volunteers listen, answer general questions, look for resources near you, and help with applications. They will tell you plainly when a question needs a doctor, a licensed counselor, or another specialist.</p>
+    <p class="prose muted">Replies come during team hours, not instantly. You can leave a message any time and it will wait for us.</p></div>
+    <div class="btn-row"><a class="btn primary" href="#talk">Send a message</a></div>
+  </div>
+  <div class="stack reveal" aria-label="Example of a conversation">
+    <div class="thread" style="max-height:none">
+      <div class="msg me"><div class="who">You</div>I'm scared and I don't know who to tell.</div>
+      <div class="msg auto">Automated message: we received your note. A volunteer will read it during team hours.</div>
+      <div class="msg"><div class="who">Anne · Volunteer</div>I'm glad you wrote. You don't have to figure this out today. What's weighing on you most?</div>
+    </div>
+    <p class="small muted">Illustration of how messaging looks. Not a real conversation.</p>
+  </div>
+</div></section>
+
+<section class="band"><div class="wrap stack-lg reveal">
+  <div class="stack"><p class="eyebrow">How it works</p><h2>Three steps, at your pace.</h2></div>
+  <ol class="steps">
+    <li><h3>Tell us a little</h3><p class="muted">Your state, your situation, and what you need. Four short questions. No name required.</p></li>
+    <li><h3>See what's near you</h3><p class="muted">Public programs, clinics, pantries, and ministries, labeled by what they actually provide.</p></li>
+    <li><h3>Ask us directly</h3><p class="muted">Request assistance from our donor-funded program, or message a volunteer who will walk through it with you.</p></li>
+  </ol>
+</div></section>
+
+<section class="band rose"><div class="wrap split">
+  <p class="statement reveal">You and your baby matter. Here is practical help, and a real person who will walk with you.</p>
+  <div class="stack reveal">
+    <p class="prose">We are Catholic, and we believe every human life has dignity from conception. We also believe that conviction means little unless it shows up as rent paid, diapers delivered, and a hand to hold, long after a baby is born.</p>
+    <p class="prose"><strong>If you have had an abortion,</strong> you are welcome here too. We offer support, not judgment.</p>
+    <div class="btn-row"><a class="btn ghost" href="#mission">Read our mission</a></div>
+  </div>
+</div></section>
+
+${statBand()}
+<section class="band sky"><div class="wrap split wide-left reveal">
+  <div class="stack"><p class="eyebrow">For supporters</p><h2>Help a mother keep the lights on.</h2>
+  <p class="prose muted">Gifts fund direct assistance for mothers who ask us for help. Volunteers answer messages, drive to appointments, and stock shelves. Parishes and businesses can partner with us.</p></div>
+  <div class="btn-row"><a class="btn pink" href="#donate">Donate</a><a class="btn ghost" href="#volunteer">Volunteer or partner</a></div>
+</div></section>`;
+
+/* Find support */
+V["find-support"]=()=>{const i=S.intake;
+ const prog=`<div class="progress" aria-hidden="true">${[1,2,3,4].map(n=>`<i class="${n<=i.step?"on":""}"></i>`).join("")}</div><p class="small muted">Step ${i.step} of 4</p>`;
+ let body="";
+ if(i.step===1)body=`<form class="f" data-form="in1">
+  <div class="field"><label for="in-state">Which state are you in?</label><select id="in-state" name="state" required>${opts(STATES,i.state,"Choose a state")}</select></div>
+  <div class="field"><label for="in-zip">ZIP code <span class="muted">(optional)</span></label><input id="in-zip" name="zip" type="text" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" value="${esc(i.zip)}" autocomplete="off"><span class="hint">Helps us narrow results once local listings are live.</span></div>
+  <fieldset><legend class="legend">Which fits you best?</legend><div class="chips">${[["pregnant","I'm pregnant"],["parenting","I'm parenting"],["helping","I'm helping someone else"]].map(([v,l])=>`<label class="chip"><input type="radio" name="who" value="${v}" ${i.who===v?"checked":""} required><span>${l}</span></label>`).join("")}</div></fieldset>
+  <div class="btn-row"><button class="btn primary">Continue</button><a href="#directory">Or browse the directory</a></div></form>`;
+ if(i.step===2)body=`<form class="f" data-form="in2"><fieldset><legend class="legend">What would help? Choose any.</legend><div class="chips">${CATS.map(([k,l])=>`<label class="chip"><input type="checkbox" name="needs" value="${k}" ${i.needs.includes(k)?"checked":""}><span>${l}</span></label>`).join("")}</div></fieldset>
+  <div class="btn-row"><button class="btn primary">Continue</button><button type="button" class="linkbtn" data-act="inBack">Back</button></div></form>`;
+ if(i.step===3)body=`<form class="f" data-form="in3"><fieldset><legend class="legend">How soon do you need help?</legend><div class="chips">${[["today","Today or tomorrow"],["week","This week"],["month","This month"],["planning","I'm planning ahead"]].map(([v,l])=>`<label class="chip"><input type="radio" name="urgency" value="${v}" ${i.urgency===v?"checked":""} required><span>${l}</span></label>`).join("")}</div></fieldset>
+  <div class="btn-row"><button class="btn primary">See support</button><button type="button" class="linkbtn" data-act="inBack">Back</button></div></form>`;
+ if(i.step===4){
+  const m=RES.filter(r=>(r.state===i.state||r.state==="US")&&(!i.needs.length||r.cats.some(c=>i.needs.includes(c)))).sort((a,b)=>(a.state==="US")-(b.state==="US"));
+  body=`<div class="stack-lg">
+  ${i.urgency==="today"?`<p class="note alertn"><strong>Need help today?</strong> If you are in danger, call 911. For urgent food, shelter, or utilities, dialing 211 reaches a local referral line in most areas. Our own team replies during team hours, not instantly.</p>`:""}
+  <div class="split wide-left"><div class="stack">
+    <h2>${m.length} ${m.length===1?"place":"places"} to start in ${esc(i.state)}</h2>
+    <p class="muted">${i.needs.length?i.needs.map(n=>CAT[n]).join(" · "):"All kinds of support"}</p>
+    ${resList(m)}
+    <p class="small muted">Listings describe what an organization says it offers. We can't promise availability until it is confirmed with them.</p>
+  </div>
+  <aside class="panel stack" style="position:sticky;top:90px"><h3>Ask us directly</h3><p>Our donor-funded program may be able to help with rent, supplies, and other needs. Requests are reviewed by a case coordinator and depend on eligibility and available funds.</p>
+    <a class="btn primary" href="#assistance">Request assistance</a><a class="btn ghost" href="#talk">Talk to a person first</a>
+    <button class="linkbtn" data-act="inRestart">Change my answers</button></aside></div></div>`;
+ }
+ return head("Find support",i.step<4?"Let's find what's available to you.":"Here is where you can start.",i.step===1?"Four short questions. No account, no name. You can stop any time.":"")+`<div class="page-body"><div class="wrap stack-lg">${prog}${body}</div></div>`};
+
+function resList(list){return list.length?`<ul class="rlist">${list.map(r=>`<li><div class="stack" style="gap:8px">
+  <div class="tags">${typeTag(r)}${r.sample?`<span class="tag sample">Sample listing</span>`:""}</div>
+  <h3><a href="#resource-${r.id}">${esc(r.name)}</a></h3><p>${esc(r.svc)}</p>
+  <p class="rmeta">${esc(r.area)} · ${esc(r.cost)} · ${r.mode==="Both"?"In person and remote":esc(r.mode)}</p></div>
+  <div class="rmeta" style="text-align:right">${r.verified?`Verified ${r.verified}`:"Not yet verified"}</div></li>`).join("")}</ul>`:`<p class="note">No listings match yet. Try removing a filter, or <a href="#talk">ask a volunteer</a> to look with you.</p>`}
+
+/* Directory */
+V.directory=()=>{const d=S.dir;return head("Resource directory","Help near you, described honestly.","Every listing says what kind of organization it is. A pregnancy support group is not a medical clinic unless it is labeled a healthcare provider.")+
+`<div class="page-body"><div class="wrap stack-lg">
+<form data-form="noop" id="dirf" aria-label="Filter listings">
+ <div class="filters">
+  <div class="field"><label for="d-q">Search</label><input id="d-q" type="search" data-f="q" value="${esc(d.q)}" placeholder="Name or service"></div>
+  <div class="field"><label for="d-state">Location</label><select id="d-state" data-f="state">${opts(STATES,d.state,"All states")}</select></div>
+  <div class="field"><label for="d-cat">Support type</label><select id="d-cat" data-f="cat">${opts(CATS,d.cat,"Any support")}</select></div>
+  <div class="field"><label for="d-type">Organization</label><select id="d-type" data-f="type">${opts(Object.entries(TYPES).map(([k,v])=>[k,v[0]]),d.type,"Any kind")}</select></div>
+ </div>
+ <div class="filters two">
+  <div class="field"><label for="d-cost">Cost</label><select id="d-cost" data-f="cost">${opts([["free","Free"],["other","Sliding scale or varies"]],d.cost,"Any cost")}</select></div>
+  <div class="field"><label for="d-mode">How</label><select id="d-mode" data-f="mode">${opts([["In person","In person"],["Remote","Remote"]],d.mode,"In person or remote")}</select></div>
+  <div class="field"><label for="d-elig">Eligibility</label><select id="d-elig" data-f="elig">${opts([["open","Open to all"],["req","Has requirements"]],d.elig,"Any")}</select></div>
+ </div></form>
+<div id="dirlist">${dirList()}</div></div></div>`};
+function dirList(){const d=S.dir,q=d.q.trim().toLowerCase();
+ const m=RES.filter(r=>(!q||(r.name+" "+r.svc).toLowerCase().includes(q))&&(!d.state||r.state===d.state||r.state==="US")&&(!d.cat||r.cats.includes(d.cat))&&(!d.type||r.type===d.type)&&(!d.cost||(d.cost==="free")===(r.cost==="Free"))&&(!d.mode||r.mode===d.mode||r.mode==="Both")&&(!d.elig||(d.elig==="open")===/^Open to all/.test(r.elig)));
+ return `<p class="muted" role="status">${m.length} listing${m.length===1?"":"s"}. Local entries marked “Sample listing” are fictional placeholders.</p>${resList(m)}`}
+
+V.resource=id=>{const r=RES.find(x=>x.id===id);if(!r)return head("Directory","We couldn't find that listing.","")+`<div class="page-body"><div class="wrap"><a class="btn ghost" href="#directory">Back to the directory</a></div></div>`;
+ return `<div class="page-head"><div class="wrap"><a href="#directory">← Directory</a><div class="tags">${typeTag(r)}${r.sample?`<span class="tag sample">Sample listing · fictional</span>`:""}</div><h1 style="font-size:clamp(2rem,4vw,3rem)">${esc(r.name)}</h1><p class="lede">${esc(r.svc)}</p></div></div>
+ <div class="page-body"><div class="wrap split wide-left"><div class="stack-lg">
+ ${r.type!=="health"?`<p class="note">This organization is listed as <strong>${TYPES[r.type][0].toLowerCase()}</strong>. It is not listed as a licensed medical provider.</p>`:""}
+ <dl class="facts">
+  <dt>Services</dt><dd>${r.cats.map(c=>CAT[c]).join(", ")}</dd>
+  <dt>Area served</dt><dd>${esc(r.area)}</dd>
+  <dt>Cost</dt><dd>${esc(r.cost)}</dd>
+  <dt>How</dt><dd>${r.mode==="Both"?"In person and remote":esc(r.mode)}</dd>
+  <dt>Eligibility</dt><dd>${esc(r.elig)}</dd>
+  <dt>Hours</dt><dd>${esc(r.hours)}</dd>
+  <dt>Phone</dt><dd>${esc(r.phone)}</dd>
+  <dt>Website</dt><dd>${r.site?`<a href="${r.site}" rel="noreferrer">${r.site.replace("https://","")}</a>`:"Not listed"}</dd>
+  <dt>Last verified</dt><dd>${r.verified||"Not yet verified. Confirm details on the official site before relying on them."}</dd>
+ </dl></div>
+ <aside class="panel"><form class="f" data-form="report" data-id="${r.id}"><h3>Is something out of date?</h3>
+  <div class="field"><label for="rp">What should we fix?</label><textarea id="rp" name="text" required></textarea></div>
+  <button class="btn ghost">Report outdated information</button></form></aside></div></div>`};
+
+/* Request assistance */
+V.assistance=()=>head("Request assistance","Ask us for direct help.","Donations fund a small program of financial and material support. Here is exactly how it works.")+
+`<div class="page-body"><div class="wrap split">
+<div class="stack-lg">
+ <div class="stack"><h2>What to expect</h2>
+ <dl class="facts">
+  <dt>What it may cover</dt><dd>Rent or utilities paid to the landlord or provider, baby supplies, transportation, and similar needs.</dd>
+  <dt>How it's reviewed</dt><dd>A case coordinator reads each request and may ask a few questions. Volunteers do not decide.</dd>
+  <dt>No promises yet</dt><dd>Help depends on eligibility and on the funds we have. We will not say yes until it is confirmed.</dd>
+  <dt>What happens next</dt><dd>You get a reference number and can follow the status under <a href="#my-requests">My requests</a>.</dd>
+  <dt>Questions</dt><dd>Ask about a decision any time from My requests or by <a href="#talk">messaging us</a>.</dd>
+ </dl></div>
+ <p class="note pinkn">We do not ask for a Social Security number, medical records, or immigration status in this request. Please don't include them.</p>
+</div>
+<form class="f panel" data-form="apply"><h3>Your request</h3>
+ <div class="field"><label for="a-name">What should we call you?</label><input id="a-name" name="name" type="text" required autocomplete="off"><span class="hint">A first name or nickname is fine.</span></div>
+ <div class="field"><label for="a-state">State</label><select id="a-state" name="state" required>${opts(STATES,S.intake.state,"Choose a state")}</select></div>
+ <fieldset><legend class="legend">What do you need help with?</legend><div class="chips">${CATS.map(([k,l])=>`<label class="chip"><input type="checkbox" name="needs" value="${k}" ${S.intake.needs.includes(k)?"checked":""}><span>${l}</span></label>`).join("")}</div></fieldset>
+ <div class="field"><label for="a-detail">Tell us a little more</label><textarea id="a-detail" name="detail" required></textarea><span class="hint">For example: what is due, and when.</span></div>
+ <fieldset><legend class="legend">Safest way to reach you</legend><div class="chips">${["Messages on this site","Email","Text","Phone call"].map((l,n)=>`<label class="chip"><input type="radio" name="contact" value="${l}" ${n===0?"checked":""}><span>${l}</span></label>`).join("")}</div>
+ <div class="field"><label for="a-how">Email or phone <span class="muted">(only if you chose one)</span></label><input id="a-how" name="how" type="text" autocomplete="off"><span class="hint">Our notifications use plain wording and never mention pregnancy.</span></div></fieldset>
+ <label class="check"><input type="checkbox" name="consent"><span>You may share my request with a partner organization if it could help me. <span class="muted">Optional. We ask again before each referral.</span></span></label>
+ <button class="btn primary">Send request</button>
+ <p class="small muted">Prototype: this creates a demo record on this page only.</p></form>
+</div></div>`;
+
+/* Talk */
+function threadHTML(c,side){return `<div class="thread" id="thread" tabindex="0" aria-label="Conversation">${c.msgs.map(m=>m.from==="auto"?`<div class="msg auto">${esc(m.text)}</div>`:`<div class="msg ${(m.from==="mother")===(side==="mother")?"me":""}"><div class="who">${m.from==="mother"?(side==="mother"?"You":esc(c.name)):TEAM[m.by].name+" · "+TEAM[m.by].role} · ${m.t}</div>${esc(m.text)}</div>`).join("")}</div>`}
+V.talk=()=>{const c=S.convos.find(x=>x.id===S.myConvo);
+ const info=`<aside class="stack"><h3>Before you write</h3>
+  <dl class="facts" style="grid-template-columns:1fr;gap:4px"><dt>Who answers</dt><dd style="margin-bottom:10px">Trained volunteers from our own team, shown by first name and role. Never an AI.</dd>
+  <dt>When</dt><dd style="margin-bottom:10px">During team hours. <span class="tag s-warn">Hours not yet set</span> Messages sent outside those hours wait in a queue.</dd>
+  <dt>What volunteers can do</dt><dd style="margin-bottom:10px">Listen, answer general questions, find resources, help with applications. They are not doctors or licensed counselors and will say when you need one.</dd>
+  <dt>Who can read this</dt><dd>The volunteer assigned to you and our case coordinators. See <a href="#privacy">Privacy</a>.</dd></dl>${emergency}</aside>`;
+ if(S.role!=="visitor"&&S.role!=="applicant")return lock("This is the mother's view of messaging.","Switch to “Visitor” or “Mother” in the prototype bar, or open the Team page to reply.");
+ if(!c)return head("Talk to a person","Write to us. A person will write back.","Say as much or as little as you like.")+`<div class="page-body"><div class="wrap split">
+  <form class="f" data-form="firstmsg">
+   <div class="field"><label for="t-name">A name we can use <span class="muted">(optional)</span></label><input id="t-name" name="name" type="text" autocomplete="off"></div>
+   <div class="field"><label for="t-msg">Your message</label><textarea id="t-msg" name="text" required></textarea></div>
+   <label class="check"><input type="checkbox" name="notify"><span>Email me when there's a reply. <span class="muted">The email says only “You have a new message” with no details.</span></span></label>
+   <div class="field"><label for="t-email">Email <span class="muted">(only if you checked the box)</span></label><input id="t-email" name="email" type="email" autocomplete="off"></div>
+   <button class="btn primary">Send message</button></form>${info}</div></div>`;
+ return head("Talk to a person","Your conversation","Only you and our assigned team members can see this thread.")+`<div class="page-body"><div class="wrap split wide-left"><div class="stack">
+  ${threadHTML(c,"mother")}
+  <form class="composer" data-form="mymsg"><label class="sr" for="m-text">Message</label><textarea id="m-text" name="text" required placeholder="Write a message"></textarea><button class="btn primary">Send</button></form>
+  <div class="btn-row small"><button class="linkbtn" data-act="flag" data-k="concern">Report a concern</button><button class="linkbtn" data-act="flag" data-k="switch">Ask for a different volunteer</button></div>
+  <p class="small muted">Prototype: to see a volunteer reply, choose “Volunteer: Anne” in the bar at the top, open Team, and answer this thread.</p></div>${info}</div></div>`};
+
+/* My requests */
+const lock=(h,p)=>head("Private","This page is private.",h)+`<div class="page-body"><div class="wrap stack"><p class="prose">${p}</p><p class="note prose">In the live site this is enforced on the server: a signed-out or unauthorized person gets no data at all, and record links can't be guessed.</p></div></div>`;
+V["my-requests"]=()=>{if(S.role!=="applicant")return lock("Sign in to see your requests.","Requests and messages are visible only to the person who made them and to assigned team members. In this prototype, choose “Mother (demo sign-in)” in the bar at the top.");
+ const apps=S.apps.filter(a=>S.myApps.includes(a.id));
+ return head("My requests","Where things stand.","Only you can see this page.")+`<div class="page-body"><div class="wrap stack-lg">
+ ${apps.length?apps.map(a=>`<article class="panel stack"><div class="btn-row" style="justify-content:space-between"><h3>Request ${a.id}</h3><span class="muted small">${a.needs.map(n=>CAT[n]).join(" · ")}</span></div>
+  <ol class="status-track">${STATUSES.map((s,n)=>(n===2&&a.status!==2)?"":`<li class="${n<a.status?"done":n===a.status?"now":""}">${s}</li>`).join("")}</ol>
+  ${a.status===0?`<p>We have your request. A case coordinator will read it during team hours.</p>`:""}
+  ${a.status===1?`<p>A case coordinator is reviewing your request. They may message you with questions.</p>`:""}
+  ${a.status===2?`<div class="stack"><p>We need a little more from you. Check your messages for what to send.</p><div class="field"><label for="up-${a.id}">Upload a document <span class="muted">(only what was asked for)</span></label><input id="up-${a.id}" type="file"><span class="hint">Prototype: files stay on your device and are not uploaded.</span></div></div>`:""}
+  ${a.status===3?`<p class="note"><strong>Decision:</strong> ${esc(a.decision||"Your coordinator will share the details in your messages.")}</p>`:""}
+  <div class="btn-row"><a class="btn ghost sm" href="#talk">Ask about this request</a></div></article>`).join(""):`<p class="prose">You have no requests yet.</p><div><a class="btn primary" href="#assistance">Request assistance</a></div>`}
+ <div class="btn-row"><a href="#talk">${S.myConvo?"Open my messages":"Send us a message"}</a></div></div></div>`};
+
+/* Learn */
+const ARTS=[
+ ["Catholic teaching","t-min","The dignity of mother and child","The Catholic Church teaches that every human life has dignity from conception, and that this dignity is not earned and cannot be lost. The same teaching holds that a mother's life, health, and future are precious. Caring for one never means forgetting the other.","Catechism of the Catholic Church, 2270–2275. John Paul II, Evangelium Vitae (1995)."],
+ ["Catholic teaching","t-min","Why support is a lasting responsibility","A child needs a home, food, and care for years, and a mother needs a community for just as long. The Church asks parishes to stay close to mothers well beyond birth, through practical help and friendship.","John Paul II, Evangelium Vitae (1995). USCCB, Walking with Moms in Need."],
+ ["Catholic teaching","t-min","If you have had an abortion","You are welcome here. The Church speaks to women who have had abortions with mercy and hope. If you want to talk, our volunteers will listen, and we can point you to ministries that offer care after abortion.","John Paul II, Evangelium Vitae, 99. Project Rachel Ministry."],
+ ["Practical help","","Money worries and where help can come from","Many mothers piece support together from several places: nutrition programs such as WIC and SNAP, health coverage through Medicaid, housing help, local charities, and direct assistance like ours. A volunteer can sit with you while you apply.","Official program websites, linked from the directory. Eligibility details must be confirmed there."],
+ ["Practical help","","How families, parishes, and neighbors can help","Ask what she needs before deciding for her. Offer rides, meals, childcare, a spare room, or a job lead. Keep her confidence. Stay in touch after the baby comes, when the casseroles usually stop.","Written by our team from volunteer practice."],
+ ["Health information","t-health","Prenatal and postpartum care","This article has not been written. Health information on this site must be written or reviewed by a licensed clinician and cite sources such as ACOG and the CDC. Until then, please ask your doctor or midwife, and use the directory to find a healthcare provider.","None yet."],
+ ["Prayer, if you want it","t-min","Prayer and spiritual support","Prayer is always optional here and never a condition of help. If you would like someone to pray with you or for you, tell a volunteer, or ask to be connected with a parish near you.","Written by our team."]];
+V.learn=()=>head("Learn","Plain answers, clearly labeled.","Religious teaching and health information are kept separate, and each piece shows its sources and review status.")+
+`<div class="page-body"><div class="wrap"><div class="prose" style="max-width:780px">${ARTS.map(a=>`<details class="art"><summary><div class="tags"><span class="tag ${a[1]}">${a[0]}</span><span class="tag s-warn">Draft · needs qualified review</span></div><h3>${a[2]}</h3></summary><div class="body"><p>${a[3]}</p><p class="src"><strong>Sources:</strong> ${a[4]}<br><strong>Last reviewed:</strong> not yet reviewed</p></div></details>`).join("")}</div></div></div>`;
+
+V.mission=()=>head("Our Catholic mission","We believe every life has dignity. So we show up.","")+
+`<div class="page-body"><div class="wrap split"><div class="stack-lg prose">
+ <p>${BRAND.name} is a Catholic, pro-life initiative. We believe human life has dignity from conception, and that a mother and her child are never in competition for our care.</p>
+ <p>We also know why many women feel they have no real choice: rent that is due, a job that won't hold, a partner who left, a family that won't help. Our answer to those pressures is concrete. We help pay bills, find diapers, drive to appointments, fill out forms, and keep showing up after the baby is born.</p>
+ <p>You don't need to be Catholic to receive help. You will not be asked to pray, attend anything, or share your story. If you'd like spiritual support, it is here. If you wouldn't, that changes nothing.</p>
+ <p>We don't shame, pressure, or argue. If you have had an abortion, you are as welcome as anyone.</p></div>
+ <aside class="stack-lg"><div class="panel stack sky" style="border:0"><h3>What we promise</h3><ul class="stack" style="padding-left:20px;margin:0;gap:8px"><li>Honesty about what we can and can't do.</li><li>Help that never depends on faith.</li><li>Your story stays yours. Donors never see it by default.</li><li>Support for you after birth, not only before.</li></ul></div>
+ <div class="btn-row"><a class="btn primary" href="#find-support">Find support</a><a class="btn ghost" href="#learn">Read more</a></div></aside></div></div>`;
+
+/* Donate */
+V.donate=()=>head("Help a mother","Your gift becomes rent, diapers, and a ride to the doctor.","")+
+`<div class="page-body"><div class="wrap split">
+<form class="f panel" data-form="donate"><h3>Make a gift</h3>
+ <fieldset><legend class="legend">How often</legend><div class="chips">${[["once","One time"],["monthly","Monthly"]].map(([v,l],n)=>`<label class="chip"><input type="radio" name="freq" value="${v}" ${n?"":"checked"}><span>${l}</span></label>`).join("")}</div></fieldset>
+ <fieldset><legend class="legend">Amount</legend><div class="amounts">${[25,50,100,250].map((v,n)=>`<label class="chip"><input type="radio" name="amt" value="${v}" ${n===1?"checked":""}><span>$${v}</span></label>`).join("")}</div>
+ <div class="field"><label for="d-other">Or another amount (USD)</label><input id="d-other" name="other" type="number" min="1" step="1" inputmode="numeric"></div></fieldset>
+ <button class="btn pink">Continue to secure checkout</button>
+ <p class="small muted">Card details are entered on the payment provider's hosted page. We never see or store them.</p></form>
+<div class="stack-lg">
+ <div class="stack"><h2>Where gifts go</h2><p class="prose">Gifts fund direct assistance for mothers who apply. A case coordinator reviews every request, and payments go to landlords, utilities, and suppliers wherever possible.</p>
+ <p class="prose">Mothers' names and stories are never shared with donors unless a mother chooses to share them.</p></div>
+ <div class="stack"><h3>How we report</h3><p class="prose muted">We will publish how funds are used once we have records to publish. We won't show impact numbers or testimonials we can't back up.</p>
+ <p class="note">Tax status: not yet confirmed. Please don't assume gifts are tax-deductible until we say so here.</p></div>
+ ${S.donations.length?`<p class="note pinkn">Test donations recorded this session: ${S.donations.length}. No money moved.</p>`:""}
+</div></div></div>`;
+
+V.volunteer=()=>{const form=(id,title,fields,btn)=>`<form class="f panel" data-form="inquiry" data-kind="${title}"><h3>${title}</h3>${fields.map(([n,l,t])=>`<div class="field"><label for="${id}-${n}">${l}</label>${t==="area"?`<textarea id="${id}-${n}" name="${n}" required></textarea>`:`<input id="${id}-${n}" name="${n}" type="${t||"text"}" required>`}</div>`).join("")}<button class="btn ghost">${btn}</button></form>`;
+ return head("Volunteer and partner","Give time, goods, or a parish's worth of help.","")+`<div class="page-body"><div class="wrap stack-lg">
+ <div class="split">${form("v","Volunteer",[["name","Your name"],["email","Email","email"],["why","How would you like to help?","area"]],"Apply to volunteer")}
+ <div class="stack"><h2>What volunteers do</h2><p class="prose">Answer messages, find resources, help with applications, drive, and sort donations. Every volunteer completes onboarding before speaking with a mother:</p>
+ <ol class="stack prose" style="gap:6px;padding-left:22px;margin:0"><li>Respectful, non-judgmental communication</li><li>Privacy and handling sensitive information</li><li>Boundaries: what volunteers do not do</li><li>Safeguarding and reporting concerns</li><li>Referral and escalation procedures</li></ol>
+ <p class="muted small">A background check may be required. Policy to be set by the organization.</p></div></div>
+ <div class="split">${form("m","Donate goods",[["name","Your name"],["email","Email","email"],["items","What would you like to give?","area"]],"Offer items")}${form("p","Parish or business partnership",[["org","Parish or business"],["email","Contact email","email"],["idea","How would you like to partner?","area"]],"Send inquiry")}</div>
+ </div></div>`};
+
+/* Team dashboard */
+V.team=()=>{if(!isTeam())return lock("Team members only.","Conversations, applications, and notes are restricted by role and assignment. In this prototype, choose a team role in the bar at the top.");
+ const r=S.role,t=S.team,me=TEAM[r];
+ const tabs=[["convos","Conversations"],["apps","Applications"],["resources","Resources"],["avail","Availability"],["onboard","Onboarding"],["audit","Access log"]];
+ let body="";
+ if(t.tab==="convos"){
+  const list=S.convos.filter(c=>r!=="volunteer"||c.assigned===r||!c.assigned);
+  const c=list.find(x=>x.id===t.convo);
+  body=`<div class="cols"><div><ul class="qlist">${list.map(c=>`<li><button class="${c.id===t.convo?"sel":""}" data-act="openConvo" data-id="${c.id}"><strong>${esc(c.name)}</strong><span class="tags">${c.demo?`<span class="tag sample">Demo conversation</span>`:""}<span class="tag ${c.assigned?"s-ok":"s-warn"}">${c.assigned?"Assigned: "+TEAM[c.assigned].name:"Unassigned"}</span>${c.flags.map(f=>`<span class="tag s-alert">${f}</span>`).join("")}</span></button></li>`).join("")}</ul>
+   ${r==="volunteer"?`<p class="small muted" style="padding:12px">You see conversations assigned to you and the unassigned queue.</p>`:""}</div>
+  <div class="stack">${c?`${threadHTML(c,"team")}
+   ${!c.assigned||c.assigned===r||r!=="volunteer"?`<form class="composer" data-form="reply"><label class="sr" for="r-text">Reply</label><textarea id="r-text" name="text" required placeholder="Reply as ${me.name} · ${me.role}"></textarea><button class="btn primary">Send reply</button></form>`:`<p class="note">Take this conversation to reply.</p>`}
+   <div class="btn-row">${!c.assigned?`<button class="btn ghost sm" data-act="assign" data-to="${r}">Assign to me</button>`:""}${r!=="volunteer"?`<label class="small" for="as">Assign to</label><select id="as" data-act-change="assignSel" style="width:auto;min-height:40px;padding:6px 10px">${opts(Object.entries(TEAM).map(([k,v])=>[k,v.name]),c.assigned,"Unassigned")}</select>`:""}<button class="btn ghost sm" data-act="escalate">Escalate urgent concern</button></div>
+   <h3>Internal notes <span class="tag s-warn">Never shown to the mother</span></h3>
+   ${c.notes.map(n=>`<div class="msg internal"><div class="who">${TEAM[n.by].name} · ${n.t}</div>${esc(n.text)}</div>`).join("")||`<p class="muted small">No notes.</p>`}
+   <form class="composer" data-form="cnote"><label class="sr" for="n-text">Internal note</label><textarea id="n-text" name="text" required placeholder="Add an internal note"></textarea><button class="btn ghost">Save note</button></form>`:`<p class="muted">Choose a conversation.</p>`}</div></div>`}
+ if(t.tab==="apps"){
+  if(r==="volunteer")body=`<p class="note prose">Volunteers can't open assistance applications. Ask a case coordinator if a mother needs an update.</p>`;
+  else{const a=S.apps.find(x=>x.id===t.app);
+  body=`<div class="cols"><ul class="qlist">${S.apps.map(a=>`<li><button class="${a.id===t.app?"sel":""}" data-act="openApp" data-id="${a.id}"><strong>${a.id} · ${esc(a.name)}</strong><span class="tags">${a.demo?`<span class="tag sample">Demo record</span>`:""}<span class="tag">${STATUSES[a.status]}</span></span></button></li>`).join("")}</ul>
+  <div class="stack">${a?`<dl class="facts"><dt>State</dt><dd>${esc(a.state)}</dd><dt>Needs</dt><dd>${a.needs.map(n=>CAT[n]).join(", ")||"Not given"}</dd><dt>Details</dt><dd>${esc(a.detail)}</dd><dt>Sharing consent</dt><dd>${a.consent?`<span class="tag s-ok">Recorded: may be referred to partners</span>`:`<span class="tag s-warn">Not given. Ask before any referral.</span>`}</dd><dt>Referrals</dt><dd>${a.referrals.join(", ")||"None tracked"}</dd></dl>
+   <form class="f" data-form="appUpdate"><div class="field"><label for="st">Status</label><select id="st" name="status">${opts(STATUSES.map((s,n)=>[String(n),s]),String(a.status))}</select></div>
+   <div class="field"><label for="dec">Decision message <span class="muted">(shown to the mother when status is “Decision available”)</span></label><textarea id="dec" name="decision" style="min-height:70px">${esc(a.decision)}</textarea></div>
+   <div class="field"><label for="ref">Track a referral</label><select id="ref" name="ref" ${a.consent?"":"disabled"}>${opts(RES.map(x=>[x.name,x.name]),"","None")}</select>${a.consent?"":`<span class="hint">Disabled until consent is recorded.</span>`}</div>
+   <div class="field"><label for="an">Internal note <span class="muted">(not visible to the mother)</span></label><textarea id="an" name="note" style="min-height:70px"></textarea></div>
+   <button class="btn primary">Save changes</button></form>
+   ${a.notes.map(n=>`<div class="msg internal"><div class="who">${TEAM[n.by].name} · ${n.t}</div>${esc(n.text)}</div>`).join("")}`:`<p class="muted">Choose an application.</p>`}</div></div>`}}
+ if(t.tab==="resources")body=`${S.reports.length?`<div class="stack"><h3>Reports from visitors</h3>${S.reports.map(x=>`<p class="note"><strong>${esc(x.name)}:</strong> ${esc(x.text)} <span class="muted">· ${x.t}</span></p>`).join("")}</div>`:""}
+  <div class="scroll-x"><table><thead><tr><th>Listing</th><th>Type</th><th>Last verified</th><th></th></tr></thead><tbody>${RES.map(x=>`<tr><td>${esc(x.name)} ${x.sample?`<span class="tag sample">Sample</span>`:""}</td><td>${TYPES[x.type][0]}</td><td>${x.verified||`<span class="tag s-warn">Never</span>`}</td><td>${r==="volunteer"?"":`<button class="btn ghost sm" data-act="verify" data-id="${x.id}">Mark verified today</button>`}</td></tr>`).join("")}</tbody></table></div>${r==="volunteer"?`<p class="small muted">Coordinators and administrators maintain listings.</p>`:""}`;
+ if(t.tab==="avail")body=`<form class="f" data-form="avail"><div class="field"><label for="av">My availability this week</label><input id="av" name="v" type="text" value="${esc(S.avail[r])}" placeholder="e.g. Tue and Thu, 6–9 pm ET"></div><button class="btn primary">Save</button></form>
+  <div class="scroll-x"><table style="margin-top:20px"><thead><tr><th>Team member</th><th>Role</th><th>Availability</th></tr></thead><tbody>${Object.entries(TEAM).map(([k,v])=>`<tr><td>${v.name}</td><td>${v.role}</td><td>${esc(S.avail[k])}</td></tr>`).join("")}</tbody></table></div><p class="small muted">Public response-time wording should be generated from this schedule so we never promise coverage we don't have.</p>`;
+ if(t.tab==="onboard")body=`<ol class="stack prose" style="padding-left:22px">${[["Respectful communication","Listen first. No pressure, no persuasion scripts, no judgment."],["Privacy","Use only this system for conversations. Never screenshot or copy records out."],["Boundaries","No medical, legal, or counseling advice. No personal money or personal phone numbers."],["Safeguarding","What to do when someone may be in danger, including minors. Escalate immediately."],["Referral procedures","Verify a resource before sending it. Record consent before sharing anything with a partner."]].map(([a,b])=>`<li><strong>${a}.</strong> ${b} <span class="tag s-warn">Module content needed</span></li>`).join("")}</ol>`;
+ if(t.tab==="audit")body=r!=="admin"?`<p class="note prose">Only administrators can read the access log.</p>`:`<div class="scroll-x"><table><thead><tr><th>When</th><th>Who</th><th>What</th></tr></thead><tbody>${S.audit.map(a=>`<tr><td>${a.t}</td><td>${esc(a.who)}</td><td>${esc(a.what)}</td></tr>`).join("")||`<tr><td colspan="3" class="muted">Nothing recorded yet this session.</td></tr>`}</tbody></table></div>`;
+ return head("Team",`Signed in as ${me.name}`,me.role+". You see only what your role and assignments allow.")+`<div class="page-body"><div class="wrap stack-lg"><div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" aria-selected="${t.tab===k}" data-act="tab" data-k="${k}">${l}</button>`).join("")}</div>${body}</div></div>`};
+
+/* Policy pages */
+const doc=(eb,h,parts)=>head(eb,h,"")+`<div class="page-body"><div class="wrap"><div class="stack-lg prose"><p class="note">Draft for the prototype. Needs legal review before launch.</p>${parts.map(([a,b])=>`<div class="stack" style="gap:8px"><h3>${a}</h3><p>${b}</p></div>`).join("")}</div></div></div>`;
+V.privacy=()=>doc("Privacy","What we keep, and who can see it.",[
+ ["What we treat as sensitive","Whether you are pregnant, your finances, your contact details, and everything you write to us."],
+ ["What we store","Only what you type into a request or a message, and the contact method you choose. Browsing the directory stores nothing about you."],
+ ["Who can see it","The volunteer assigned to your conversation and our case coordinators. Administrators can see records when needed, and every access is logged. Donors and parishes cannot see who we help."],
+ ["Sharing","We ask your permission each time before sharing anything with a partner organization."],
+ ["No ad trackers","We do not run advertising trackers on intake, application, or messaging pages."],
+ ["Deleting your information","You can ask us to delete your records. Retention periods will be published here once set."],
+ ["Limits","We work hard to protect your information, but we don't promise absolute confidentiality. The law may require us to report certain safety concerns."],
+ ["Quick exit","The Quick exit button leaves this site fast. It does not erase your browsing history. Use a private window if someone else checks your device."]]);
+V.terms=()=>doc("Terms","Using this site.",[["What this site is","A way to find resources and ask our team for support. It is not medical, legal, or mental-health advice."],["Directory listings","We describe other organizations as accurately as we can and show when each was last verified. We don't control their services."],["Assistance","Requests are reviewed case by case and depend on eligibility and available funds. Submitting a request is not a guarantee."],["Messaging","Replies come from volunteers during team hours. Messaging is not an emergency service."]]);
+V.accessibility=()=>doc("Accessibility","Built to be usable by everyone.",[["Our aim","We design to WCAG 2.2 AA: readable contrast, keyboard access, visible focus, labeled forms, large touch targets, and reduced motion when your device asks for it."],["Tell us","If something is hard to use, please tell us through the Contact page and we will fix it."]]);
+V.contact=()=>head("Contact","Reach the team.","")+`<div class="page-body"><div class="wrap split"><div class="stack prose"><p><strong>Need support?</strong> The fastest way is <a href="#talk">Talk to a person</a>.</p><p><strong>Press, parishes, and partners:</strong> use the form, or the <a href="#volunteer">partnership inquiry</a>.</p><p class="muted">Mailing address, phone, and email: to be added by the organization.</p>${emergency}</div>
+ <form class="f panel" data-form="inquiry" data-kind="Contact"><div class="field"><label for="c-email">Your email</label><input id="c-email" name="email" type="email" required></div><div class="field"><label for="c-msg">Message</label><textarea id="c-msg" name="msg" required></textarea></div><button class="btn primary">Send</button></form></div></div>`;
+V["launch-notes"]=()=>head("Prototype notes","What's real here, and what it takes to go live.","")+`<div class="page-body"><div class="wrap split"><div class="stack-lg prose">
+ <div class="stack"><h3>What works in this prototype</h3><ul class="stack" style="gap:6px;padding-left:20px;margin:0"><li>Intake flow and matched results</li><li>Directory search, filters, detail pages, outdated-info reports</li><li>Assistance request, reference number, status tracking</li><li>Messaging thread with a labeled automated acknowledgment, and a volunteer reply from the Team page</li><li>Role-based views: visitor, mother, volunteer, coordinator, administrator</li><li>Internal notes kept separate from messages, and an access log</li><li>Test donation through a stand-in checkout</li></ul></div>
+ <div class="stack"><h3>Assumptions made</h3><ul class="stack" style="gap:6px;padding-left:20px;margin:0"><li>All data lives in this page's memory and disappears on reload.</li><li>Local listings are fictional samples. National programs link to official sites but are unverified.</li><li>Illustration stands in for licensed photography.</li><li>Team hours, response times, tax status, and contact details are left blank on purpose.</li></ul></div></div>
+ <div class="stack"><h3>Needed to activate</h3><div class="scroll-x"><table><tbody>${[["Accounts and access","Server with secure sign-in, server-side role checks, encrypted transport and storage, unguessable record IDs"],["Messaging","Database, discreet email notifications, staffed team hours"],["Payments","Hosted checkout from a payment provider; confirmed nonprofit and tax status"],["Directory","Verified listings with a verification schedule"],["Content","Theological review of teaching; clinician review of health content"],["Policies","Privacy policy, retention schedule, safeguarding and mandatory-reporting policy, volunteer screening"],["Photography","Licensed images with a note that people shown are not beneficiaries"]].map(([a,b])=>`<tr><th scope="row">${a}</th><td>${b}</td></tr>`).join("")}</tbody></table></div></div></div></div>`;
+
+/* ---------- Stat ring (CSS 3D take on the warp carousel) ---------- */
+const STATS=[
+ {t:"Abortions reported<br>to the CDC",v:"613,383",f:"2022 · 48 reporting areas",d:"ticks"},
+ {t:"Said they couldn't<br>afford a baby now",v:"73",u:"%",f:"2004 survey · 1,160 patients",d:"bar",p:73},
+ {t:"Of women having abortions<br>are already mothers",v:"6",u:"in 10",f:"CDC data for 2019",d:"dots",p:6},
+ {t:"Cited single motherhood<br>or relationship problems",v:"48",u:"%",f:"2004 survey · 1,160 patients",d:"bar",p:48}];
+const detail=s=>s.d==="bar"?`<div class="sd bar" style="--p:${s.p}%"><i></i></div>`:s.d==="dots"?`<div class="sd dots">${Array.from({length:10},(_,i)=>`<i class="${i<s.p?"on":""}"></i>`).join("")}</div>`:`<div class="sd ticks">${Array.from({length:48},(_,i)=>`<i style="height:${4+Math.round(14*Math.abs(Math.sin(i*1.7+.4)*Math.cos(i*.53)))}px"></i>`).join("")}</div>`;
+const statBand=()=>`<section class="band"><div class="wrap split">
+ <div class="stack-lg reveal">
+  <div class="stack"><p class="eyebrow">Why practical help matters</p><h2>Behind the numbers are women under real pressure.</h2>
+  <p class="prose">When researchers ask women why, money and going it alone come up again and again. Those are things a community can do something about.</p></div>
+  <ol class="srcs">
+   <li>613,383 abortions were reported to the CDC for 2022. Reporting is voluntary and not every state reports. <a href="https://www.cdc.gov/mmwr/volumes/73/ss/ss7307a1.htm" rel="noreferrer">CDC, Abortion Surveillance, United States, 2022</a>.</li>
+   <li>73% said they could not afford a baby now, and 48% cited not wanting to be a single mother or relationship problems. Women could give several reasons. <a href="https://www.guttmacher.org/sites/default/files/pdfs/pubs/psrh/full/3711005.pdf" rel="noreferrer">Finer et al., Reasons U.S. Women Have Abortions, 2005</a>.</li>
+   <li>About 6 in 10 were already mothers, from CDC data for 2019 as summarized by The New York Times. <a href="https://www.cdc.gov/mmwr/volumes/70/ss/ss7009a1.htm" rel="noreferrer">CDC, Abortion Surveillance, United States, 2019</a>.</li>
+  </ol>
+  <div class="tags"><span class="tag s-warn">Figures need a final check against sources before launch</span></div>
+ </div>
+ <div class="reveal">
+  <div class="ring-stage" id="ringStage" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Four statistics, also listed with sources beside this">
+   <div class="ring" id="ring">${STATS.map((s,i)=>`<article class="scard c${i}" style="transform:rotateY(${i*90}deg) translateZ(235px)"><p class="st">${s.t}</p><div><div class="num${s.v.length>3?" long":""}">${s.v}${s.u?`<sup>${s.u}</sup>`:""}</div>${detail(s)}</div><p class="sf">${s.f}</p></article>`).join("")}</div>
+  </div>
+  <div class="ring-ctl"><button class="btn ghost sm" data-act="ringPrev" aria-label="Previous statistic">←</button><button class="btn ghost sm" id="ringPause" data-act="ringPause">Pause</button><button class="btn ghost sm" data-act="ringNext" aria-label="Next statistic">→</button></div>
+ </div></div></section>`;
+const R={n:0,timer:0,paused:false};
+function ringSet(extra=0){const r=$("#ring");if(r)r.style.transform=`translateZ(-235px) rotateY(${-R.n*90+extra}deg)`}
+function ringAuto(){clearInterval(R.timer);if(R.paused||matchMedia("(prefers-reduced-motion:reduce)").matches)return;R.timer=setInterval(()=>{if(!$("#ring"))return clearInterval(R.timer);if(document.hidden)return;R.n++;ringSet()},4500)}
+function ringInit(){clearInterval(R.timer);const st=$("#ringStage");if(!st)return;ringSet();ringAuto();
+ let x0=null,dx=0;
+ st.addEventListener("pointerdown",e=>{x0=e.clientX;dx=0;st.classList.add("drag");st.setPointerCapture?.(e.pointerId);clearInterval(R.timer)});
+ st.addEventListener("pointermove",e=>{if(x0===null)return;dx=e.clientX-x0;ringSet(dx*.3)});
+ const up=()=>{if(x0===null)return;x0=null;st.classList.remove("drag");R.n-=Math.round(dx*.3/90+Math.sign(dx)*(Math.abs(dx)>40?.35:0));ringSet();ringAuto()};
+ st.addEventListener("pointerup",up);st.addEventListener("pointercancel",up);
+ st.addEventListener("keydown",e=>{if(e.key==="ArrowRight"){R.n++;ringSet();ringAuto()}if(e.key==="ArrowLeft"){R.n--;ringSet();ringAuto()}});
+ if($("#ringPause"))$("#ringPause").textContent=R.paused?"Play":"Pause"}
+
+/* ---------- Router ---------- */
+function route(){let h=location.hash.replace("#","")||"home";
+ let html;if(h.startsWith("resource-"))html=V.resource(h.slice(9));else{if(!V[h])h="home";html=V[h]()}
+ const v=$("#view");v.innerHTML=html;
+ const changed=S.lastRoute!==h;S.lastRoute=h;
+ document.querySelectorAll("nav.main a").forEach(a=>a.getAttribute("href")==="#"+h?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+ $("#acctLink").innerHTML=isTeam()?`<a href="#team">Team</a>`:`<a href="#my-requests">My requests</a>`;
+ $("#role").value=S.role;$("#nav").classList.remove("open");$("#menuBtn").setAttribute("aria-expanded","false");
+ if(changed){v.classList.remove("enter");void v.offsetWidth;v.classList.add("enter");window.scrollTo(0,0);reveal()}
+ const th=$("#thread");if(th)th.scrollTop=th.scrollHeight;ringInit()}
+function reveal(){if(matchMedia("(prefers-reduced-motion:reduce)").matches||!("IntersectionObserver"in window))return;
+ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
+ document.querySelectorAll(".reveal").forEach(el=>{if(el.getBoundingClientRect().top>innerHeight*.9){el.classList.add("will");io.observe(el)}});
+ setTimeout(()=>document.querySelectorAll(".will").forEach(e=>e.classList.add("in")),4000)}
+const go=h=>{if(location.hash==="#"+h)route();else location.hash=h};
+
+/* ---------- Actions ---------- */
+const A={
+ need(el){S.intake.needs=[el.dataset.k];S.intake.step=1},
+ inBack(){S.intake.step--;route()},
+ inRestart(){S.intake.step=1;route()},
+ tab(el){S.team.tab=el.dataset.k;route()},
+ openConvo(el){S.team.convo=el.dataset.id;log("Viewed conversation "+el.dataset.id);route()},
+ openApp(el){S.team.app=el.dataset.id;log("Viewed application "+el.dataset.id);route()},
+ assign(el){const c=S.convos.find(x=>x.id===S.team.convo);c.assigned=el.dataset.to;log("Assigned conversation "+c.id+" to "+TEAM[c.assigned].name);route()},
+ escalate(){const c=S.convos.find(x=>x.id===S.team.convo);if(!c.flags.includes("Escalated"))c.flags.push("Escalated");log("Escalated conversation "+c.id+" to case coordinator");toast("Escalated to the case coordinator on call.");route()},
+ verify(el){const r=RES.find(x=>x.id===el.dataset.id);r.verified=new Date().toISOString().slice(0,10);log("Verified listing: "+r.name);route()},
+ flag(el){const c=S.convos.find(x=>x.id===S.myConvo);const k=el.dataset.k==="concern"?"Concern reported":"Asked for another volunteer";if(!c.flags.includes(k))c.flags.push(k);c.msgs.push({from:"auto",text:"Automated message: "+(el.dataset.k==="concern"?"your concern was sent to a case coordinator, not to your volunteer.":"we've asked a coordinator to assign a different volunteer."),t:now()});route()},
+ closeModal(){$("#overlay").innerHTML=""},
+ ringNext(){R.n++;ringSet();ringAuto()},ringPrev(){R.n--;ringSet();ringAuto()},ringPause(el){R.paused=!R.paused;el.textContent=R.paused?"Play":"Pause";ringAuto()},
+ pay(el){S.donations.push({amt:el.dataset.amt,freq:el.dataset.freq,t:now()});$("#overlay").innerHTML=`<div class="modal"><div class="box" role="dialog" aria-modal="true" aria-label="Test donation complete"><span class="tag sample" style="align-self:flex-start">Test mode</span><h3>Test donation complete</h3><p>$${esc(el.dataset.amt)} ${el.dataset.freq==="monthly"?"monthly":"one time"}. No payment was made and no card was charged.</p><button class="btn primary" data-act="closeModal">Done</button></div></div>`;$("#overlay button").focus();if(location.hash==="#donate")route()}
+};
+const F={
+ noop(){},
+ in1(d){Object.assign(S.intake,{state:d.get("state"),zip:d.get("zip"),who:d.get("who"),step:2});route()},
+ in2(d){S.intake.needs=d.getAll("needs");S.intake.step=3;route()},
+ in3(d){S.intake.urgency=d.get("urgency");S.intake.step=4;route()},
+ report(d,f){const r=RES.find(x=>x.id===f.dataset.id);S.reports.unshift({name:r.name,text:d.get("text"),t:now()});f.reset();toast("Thank you. Our team will check this listing.")},
+ apply(d){const id="WY-"+(1044+S.myApps.length);S.apps.unshift({id,name:d.get("name"),state:d.get("state"),needs:d.getAll("needs"),detail:d.get("detail"),status:0,notes:[],decision:"",consent:!!d.get("consent"),referrals:[]});S.myApps.push(id);S.role="applicant";toast("Request "+id+" received. You're signed in as a demo applicant.");go("my-requests")},
+ firstmsg(d){const id="c-"+Date.now();S.convos.unshift({id,name:d.get("name")||"Anonymous",assigned:null,flags:[],notes:[],msgs:[{from:"mother",text:d.get("text"),t:now()},{from:"auto",text:"Automated message: we received your note. A volunteer will read it during team hours and reply here.",t:now()}]});S.myConvo=id;S.role="applicant";route()},
+ mymsg(d){S.convos.find(x=>x.id===S.myConvo).msgs.push({from:"mother",text:d.get("text"),t:now()});route()},
+ reply(d){const c=S.convos.find(x=>x.id===S.team.convo);if(!c.assigned)c.assigned=S.role;c.msgs.push({from:"team",by:S.role,text:d.get("text"),t:now()});log("Replied in conversation "+c.id);route()},
+ cnote(d){const c=S.convos.find(x=>x.id===S.team.convo);c.notes.push({by:S.role,text:d.get("text"),t:now()});log("Added internal note on "+c.id);route()},
+ appUpdate(d){const a=S.apps.find(x=>x.id===S.team.app);const ns=+d.get("status");if(ns!==a.status)log("Changed "+a.id+" status to "+STATUSES[ns]);a.status=ns;a.decision=d.get("decision");if(d.get("ref")){a.referrals.push(d.get("ref"));log("Tracked referral for "+a.id)}if(d.get("note"))a.notes.push({by:S.role,text:d.get("note"),t:now()});toast("Saved.");route()},
+ avail(d){S.avail[S.role]=d.get("v")||"Not set";log("Updated availability");toast("Availability saved.");route()},
+ inquiry(d,f){f.reset();toast(f.dataset.kind+" form captured in the prototype. Nothing was sent.")},
+ donate(d){const amt=d.get("other")||d.get("amt"),freq=d.get("freq");
+  $("#overlay").innerHTML=`<div class="modal"><div class="box" role="dialog" aria-modal="true" aria-label="Checkout"><span class="tag sample" style="align-self:flex-start">Test mode · stand-in for hosted checkout</span><h3>$${esc(amt)} ${freq==="monthly"?"every month":"one time"}</h3><p class="muted">In the live site this step happens on the payment provider's secure page. This prototype collects no card details.</p><div class="btn-row"><button class="btn pink" data-act="pay" data-amt="${esc(amt)}" data-freq="${freq}">Complete test donation</button><button class="btn ghost" data-act="closeModal">Cancel</button></div></div></div>`;$("#overlay button").focus()}
+};
+
+document.addEventListener("click",e=>{const el=e.target.closest("[data-act]");if(el&&A[el.dataset.act])A[el.dataset.act](el,e)});
+document.addEventListener("submit",e=>{e.preventDefault();const f=e.target,fn=F[f.dataset.form];if(fn)fn(new FormData(f),f)});
+document.addEventListener("input",e=>{const k=e.target.dataset.f;if(k){S.dir[k]=e.target.value;$("#dirlist").innerHTML=dirList()}});
+document.addEventListener("change",e=>{if(e.target.dataset.actChange==="assignSel"){const c=S.convos.find(x=>x.id===S.team.convo);c.assigned=e.target.value||null;log("Assigned conversation "+c.id+" to "+(c.assigned?TEAM[c.assigned].name:"nobody"));route()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#overlay").innerHTML=""});
+$("#role").addEventListener("change",e=>{S.role=e.target.value;if(isTeam())log("Signed in");route()});
+$("#menuBtn").addEventListener("click",()=>{const o=$("#nav").classList.toggle("open");$("#menuBtn").setAttribute("aria-expanded",o)});
+$("#exit").addEventListener("click",()=>{document.title="Weather";document.body.innerHTML=""});
+window.addEventListener("hashchange",route);
+
+function start(saved){if(saved&&saved.role)S=saved;route()}
+window.claude?.hot?.snapshot?.(()=>S);
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+</script>
+</body>
+</html>
